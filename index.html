@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calendario 26/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF6ED;
+  --paper-dark:#121110;
+  --ink:#2A241C;
+  --ink-dark:#EDE6D6;
+  --ink-soft:#6B6255;
+  --ink-soft-dark:#A69E8C;
+  --line:#DCD3BE;
+  --line-dark:#3A362C;
+  --accent:#7A2E2E;
+  --accent-dark:#C97B5A;
+  --gold:#A6832E;
+  --card:#FFFFFF;
+  --card-dark:#1B1916;
+  --shadow: 0 1px 2px rgba(42,36,28,0.06);
+  box-sizing:border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper: var(--paper-dark);
+    --ink: var(--ink-dark);
+    --ink-soft: var(--ink-soft-dark);
+    --line: var(--line-dark);
+    --accent: var(--accent-dark);
+    --card: var(--card-dark);
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --paper: var(--paper-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+  --line: var(--line-dark);
+  --accent: var(--accent-dark);
+  --card: var(--card-dark);
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+html{ scroll-padding-top: env(safe-area-inset-top, 0px); height:100%; }
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100%;
+  transition: background .3s ease, color .3s ease;
+}
+.serif{ font-family:'Fraunces',Georgia,serif; }
+
+/* ---- header ---- */
+header{
+  position:sticky; top:0; z-index:20;
+  padding: calc(env(safe-area-inset-top,0px) + 14px) 20px 14px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+header .top-row{
+  display:flex; align-items:baseline; justify-content:space-between;
+  margin-bottom: 2px;
+}
+header h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+header .year{
+  font-size:0.78rem;
+  color:var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+header .subtitle{
+  font-size:0.8rem;
+  color:var(--ink-soft);
+  font-style: italic;
+  font-family:'Fraunces',Georgia,serif;
+}
+
+.theme-toggle{
+  background:none; border:1px solid var(--line); color:var(--ink-soft);
+  width:30px; height:30px; border-radius:50%;
+  font-size:0.85rem; display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+
+/* ---- nav tabs ---- */
+.tabs{
+  display:flex; gap:4px;
+  margin-top:14px;
+  border-bottom:1px solid var(--line);
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding: 9px 4px 10px;
+  font-size:0.82rem;
+  font-weight:600;
+  color:var(--ink-soft);
+  background:none; border:none;
+  border-bottom: 2px solid transparent;
+  cursor:pointer;
+  letter-spacing: 0.01em;
+}
+.tab.active{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+
+main{ padding: 16px 16px 60px; max-width:640px; margin:0 auto; }
+
+/* ---- search ---- */
+.search-wrap{ position:relative; margin-bottom:16px; }
+.search-wrap input{
+  width:100%;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:11px 14px 11px 38px;
+  font-size:0.92rem;
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+}
+.search-wrap input::placeholder{ color:var(--ink-soft); }
+.search-wrap svg{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; stroke:var(--ink-soft);
+}
+.search-wrap input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+
+/* ---- month nav ---- */
+.month-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom: 14px;
+}
+.month-nav .label{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.15rem;
+  font-weight:600;
+  text-transform:capitalize;
+}
+.month-nav button{
+  background:var(--card);
+  border:1px solid var(--line);
+  width:34px; height:34px; border-radius:8px;
+  color:var(--ink);
+  font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.month-nav button:disabled{ opacity:0.3; }
+.month-nav .btns{ display:flex; gap:8px; }
+
+/* ---- calendar grid ---- */
+.weekday-row{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  margin-bottom:6px;
+}
+.weekday-row span{
+  text-align:center; font-size:0.68rem; color:var(--ink-soft);
+  font-weight:600; letter-spacing:0.02em;
+}
+.grid{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap:4px;
+}
+.day-cell{
+  aspect-ratio:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-radius:9px;
+  font-size:0.85rem;
+  cursor:pointer;
+  position:relative;
+  color:var(--ink);
+  background:transparent;
+  border:1px solid transparent;
+}
+.day-cell.empty{ visibility:hidden; }
+.day-cell .num{ font-variant-numeric: tabular-nums; }
+.day-cell.has-event{
+  background:var(--card);
+  border-color:var(--line);
+  font-weight:600;
+}
+.day-cell .dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--accent);
+  margin-top:2px;
+}
+.day-cell.today{
+  border-color:var(--accent);
+  border-width:1.5px;
+}
+.day-cell.selected{
+  background:var(--accent);
+  color:var(--paper);
+  border-color:var(--accent);
+}
+.day-cell.selected .dot{ background:var(--paper); }
+.day-cell.sunday .num{ color:var(--accent); }
+.day-cell.selected.sunday .num{ color:var(--paper); }
+
+/* ---- detail panel ---- */
+.detail{
+  margin-top:18px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px 18px 18px;
+  box-shadow:var(--shadow);
+  min-height:70px;
+}
+.detail .d-date{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.05rem;
+  font-weight:600;
+  text-transform:capitalize;
+  margin-bottom:8px;
+}
+.detail .fd-line{
+  display:flex; gap:8px; align-items:flex-start;
+  font-size:0.88rem;
+  color:var(--ink);
+  margin-bottom:8px;
+  line-height:1.4;
+}
+.detail .fd-line .tag{
+  flex-shrink:0;
+  font-size:0.62rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  border-radius:5px;
+  padding:2px 6px;
+  margin-top:1px;
+}
+.detail .ponente{
+  font-size:0.85rem;
+  color:var(--ink-soft);
+  margin-bottom:4px;
+}
+.detail .ponente b{ color:var(--ink); font-weight:600; }
+.detail .contenido{
+  font-size:0.88rem;
+  line-height:1.5;
+  color:var(--ink);
+}
+.detail .empty-msg{
+  color:var(--ink-soft);
+  font-size:0.88rem;
+  font-style:italic;
+  font-family:'Fraunces',Georgia,serif;
+}
+
+/* ---- list view (search results / agenda) ---- */
+.agenda-list{ display:flex; flex-direction:column; gap:8px; }
+.agenda-item{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex;
+  gap:12px;
+  cursor:pointer;
+}
+.agenda-item .date-block{
+  flex-shrink:0;
+  width:46px;
+  text-align:center;
+  padding-right:12px;
+  border-right:1px solid var(--line);
+}
+.agenda-item .date-block .dow{
+  font-size:0.62rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em;
+}
+.agenda-item .date-block .dnum{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.3rem; font-weight:600; line-height:1.1;
+}
+.agenda-item .date-block .mon{
+  font-size:0.62rem; color:var(--ink-soft); text-transform:uppercase;
+}
+.agenda-item .content{ flex:1; min-width:0; }
+.agenda-item .fd{ font-size:0.85rem; font-weight:600; margin-bottom:2px; }
+.agenda-item .pon{ font-size:0.78rem; color:var(--accent); margin-bottom:2px; }
+.agenda-item .cont{ font-size:0.78rem; color:var(--ink-soft); line-height:1.4; }
+.no-results{
+  text-align:center; padding:40px 20px; color:var(--ink-soft);
+  font-family:'Fraunces',Georgia,serif; font-style:italic; font-size:0.95rem;
+}
+
+/* ---- section title ---- */
+.section-title{
+  font-size:0.72rem;
+  font-weight:700;
+  color:var(--ink-soft);
+  letter-spacing:0.04em;
+  margin: 22px 0 10px;
+}
+.section-title:first-child{ margin-top:0; }
+
+/* ---- horarios view ---- */
+.horario-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+.horario-head{
+  padding:12px 16px;
+  border-bottom:1px solid var(--line);
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;
+  font-size:1.02rem;
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+.horario-row{
+  display:flex; gap:14px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--line);
+  align-items:flex-start;
+}
+.horario-row:last-child{ border-bottom:none; }
+.horario-row .time{
+  font-variant-numeric: tabular-nums;
+  font-weight:600;
+  font-size:0.85rem;
+  width:46px;
+  flex-shrink:0;
+  color:var(--accent);
+}
+.horario-row .what{
+  font-size:0.86rem;
+  line-height:1.4;
+}
+.horario-note{
+  font-size:0.76rem;
+  color:var(--ink-soft);
+  font-style:italic;
+  padding:10px 16px;
+  font-family:'Fraunces',Georgia,serif;
+}
+
+.legend{
+  margin-top:24px;
+  font-size:0.72rem;
+  color:var(--ink-soft);
+  line-height:1.6;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+}
+
+::-webkit-scrollbar{ display:none; }
+
+/* ---- Mi semana ---- */
+.today-banner{
+  margin-bottom:16px;
+}
+.today-banner .dow{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.5rem;
+  font-weight:600;
+  text-transform:capitalize;
+  line-height:1.15;
+}
+.today-banner .dfull{
+  font-size:0.82rem;
+  color:var(--ink-soft);
+  text-transform:capitalize;
+}
+
+.week-strip{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+  margin-bottom:18px;
+}
+.week-day-btn{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 2px 9px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  cursor:pointer;
+  color:var(--ink);
+}
+.week-day-btn .wl{
+  font-size:0.63rem;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  letter-spacing:0.02em;
+}
+.week-day-btn .wdot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--accent);
+  visibility:hidden;
+}
+.week-day-btn.is-today{
+  border-color:var(--accent);
+  border-width:1.5px;
+}
+.week-day-btn.is-today .wdot{ visibility:visible; }
+.week-day-btn.selected{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--paper);
+}
+.week-day-btn.selected .wl{ color:var(--paper); opacity:0.85; }
+.week-day-btn.selected .wdot{ background:var(--paper); visibility:visible; }
+
+.day-schedule{
+  display:flex;
+  flex-direction:column;
+}
+.sched-block{
+  display:flex;
+  gap:14px;
+  padding:12px 2px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+}
+.sched-block:last-child{ border-bottom:none; }
+.sched-block .times{
+  flex-shrink:0;
+  width:52px;
+  padding-top:1px;
+  font-variant-numeric: tabular-nums;
+  font-size:0.74rem;
+  color:var(--ink-soft);
+  line-height:1.5;
+}
+.sched-block .times .t-end{
+  opacity:0.7;
+}
+.sched-block .bar{
+  flex-shrink:0;
+  width:4px;
+  border-radius:3px;
+  background:var(--line);
+}
+.sched-block.tag-estudio .bar{ background:var(--accent); }
+.sched-block.tag-clase .bar{ background:var(--gold); }
+.sched-block.tag-formacion .bar{ background:#5B7B6E; }
+.sched-block.tag-idioma .bar{ background:#7A6BA6; }
+.sched-block.tag-encargo .bar{ background:#B0652F; }
+.sched-block.tag-esp .bar{ background:var(--ink-soft); }
+.sched-block.tag-desc .bar{ background:var(--line); }
+.sched-block.tag-libre .bar{ background:var(--line); }
+.sched-block .binfo{ flex:1; padding-top:1px; }
+.sched-block .blabel{
+  font-size:0.92rem;
+  font-weight:600;
+  line-height:1.35;
+}
+.sched-block.tag-desc .blabel,
+.sched-block.tag-libre .blabel{
+  font-weight:400;
+  color:var(--ink-soft);
+  font-style:italic;
+  font-family:'Fraunces',Georgia,serif;
+}
+.sched-block .btag{
+  display:inline-block;
+  margin-top:4px;
+  font-size:0.62rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.sched-block.now{
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-radius:10px;
+  margin:0 -8px;
+  padding-left:10px;
+  padding-right:8px;
+}
+.sched-block.now .bar{ background:var(--accent); width:5px; }
+.sched-block.now::after{
+  content:'ahora';
+  position:absolute;
+  right:8px; top:12px;
+  font-size:0.6rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.point-block{
+  display:flex; align-items:center; gap:10px;
+  padding:6px 2px;
+  font-size:0.76rem;
+  color:var(--ink-soft);
+  font-style:italic;
+  font-family:'Fraunces',Georgia,serif;
+}
+.point-block .times{
+  width:52px; flex-shrink:0; font-variant-numeric: tabular-nums;
+  font-style:normal; font-family:'Inter',sans-serif; font-size:0.74rem;
+}
+.point-block .pline{
+  flex:1; height:1px; background:var(--line);
+}
+.rest-day{
+  text-align:center;
+  padding: 50px 20px;
+  color:var(--ink-soft);
+  font-family:'Fraunces',Georgia,serif;
+  font-style:italic;
+  font-size:1rem;
+  line-height:1.6;
+}
+
+/* ---- Semana completa (grilla) ---- */
+.grid-legend{
+  display:flex; flex-wrap:wrap; gap:10px 14px;
+  margin-bottom:14px;
+  font-size:0.68rem;
+  color:var(--ink-soft);
+}
+.grid-legend .lg-item{ display:flex; align-items:center; gap:5px; }
+.grid-legend .lg-dot{ width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.grid-scroll{
+  overflow-x:auto;
+  margin: 0 -16px;
+  padding: 0 16px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.week-grid{
+  display:grid;
+  grid-template-columns: 42px repeat(7, minmax(70px, 1fr));
+  min-width: 620px;
+  position:relative;
+  border-top:1px solid var(--line);
+  border-left:1px solid var(--line);
+}
+.wg-corner{
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+  position:sticky; left:0; z-index:2;
+}
+.wg-daycol-head{
+  text-align:center;
+  padding:6px 2px;
+  font-size:0.7rem;
+  font-weight:700;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+}
+.wg-daycol-head.is-today{ color:var(--accent); }
+.wg-hour-label{
+  font-size:0.6rem;
+  color:var(--ink-soft);
+  text-align:right;
+  padding-right:4px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+  position:sticky; left:0; z-index:1;
+  display:flex; align-items:flex-start; justify-content:flex-end;
+}
+.wg-daycell{
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  position:relative;
+  background:var(--card);
+}
+.wg-block{
+  position:absolute;
+  left:2px; right:2px;
+  border-radius:5px;
+  padding:3px 5px;
+  font-size:0.6rem;
+  line-height:1.25;
+  font-weight:600;
+  overflow:hidden;
+  color:#fff;
+}
+.wg-block .wgt{ font-size:0.54rem; font-weight:500; opacity:0.85; display:block; }
+.tagbg-estudio{ background:var(--accent); }
+.tagbg-clase{ background:var(--gold); }
+.tagbg-formacion{ background:#5B7B6E; }
+.tagbg-idioma{ background:#7A6BA6; }
+.tagbg-encargo{ background:#B0652F; }
+.tagbg-esp{ background:#8A8272; }
+.tagbg-desc{ background:transparent; border:1px dashed var(--line); color:var(--ink-soft); }
+.tagbg-libre{ background:transparent; border:1px dashed var(--line); color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top-row">
+    <h1>Mi horario</h1>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">◐</button>
+  </div>
+  <div class="subtitle">curso 2026 – 2027</div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="semana">Mi semana</button>
+    <button class="tab" data-tab="grid">Semana completa</button>
+    <button class="tab" data-tab="calendario">Ordenación</button>
+    <button class="tab" data-tab="agenda">Próximos</button>
+    <button class="tab" data-tab="horarios">Horarios</button>
+  </nav>
+</header>
+
+<main>
+
+  <section id="view-semana">
+    <div class="today-banner" id="todayBanner"></div>
+    <div class="week-strip" id="weekStrip"></div>
+    <div class="day-schedule" id="daySchedule"></div>
+  </section>
+
+  <section id="view-grid" style="display:none;">
+    <div class="grid-legend" id="gridLegend"></div>
+    <div class="grid-scroll">
+      <div class="week-grid" id="weekGrid"></div>
+    </div>
+  </section>
+
+  <section id="view-calendario" style="display:none;">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar ponente, tema, fecha…">
+    </div>
+
+    <div id="searchResults" style="display:none;"></div>
+
+    <div id="calendarBlock">
+      <div class="month-nav">
+        <button id="prevMonth" aria-label="Mes anterior">‹</button>
+        <span class="label serif" id="monthLabel"></span>
+        <div class="btns">
+          <button id="todayBtn" aria-label="Hoy" style="width:auto;padding:0 10px;font-size:0.72rem;font-family:Inter,sans-serif;">Hoy</button>
+          <button id="nextMonth" aria-label="Mes siguiente">›</button>
+        </div>
+      </div>
+      <div class="weekday-row">
+        <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+      </div>
+      <div class="grid" id="calGrid"></div>
+
+      <div class="detail" id="detailPanel"></div>
+    </div>
+  </section>
+
+  <section id="view-agenda" style="display:none;">
+    <div class="section-title">Próximas fechas de formación</div>
+    <div class="agenda-list" id="agendaList"></div>
+  </section>
+
+  <section id="view-horarios" style="display:none;">
+    <div class="section-title">Horario tipo · Jueves y Sábado</div>
+    <div class="horario-card">
+      <div class="horario-head">Jueves</div>
+      <div id="juevesRows"></div>
+    </div>
+    <div class="horario-card">
+      <div class="horario-head">Sábado</div>
+      <div id="sabadoRows"></div>
+    </div>
+    <div class="horario-note">* Los de fuera que lo deseen, pueden venir a almorzar y cenar a Cavabianca.</div>
+    <div class="legend">Datos según "Calendario ordenandos 26/27". F.D. = Formación Doctrinal.</div>
+  </section>
+
+</main>
+
+<script>
+const SEMANA = {"lunes": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "10:30", "label": "Estudio", "tag": "estudio"}, {"ini": "10:30", "fin": "11:00", "label": "Descanso", "tag": "desc"}, {"ini": "11:00", "fin": "13:00", "label": "Estudio", "tag": "estudio"}, {"ini": "13:00", "fin": "13:30", "label": "Griego / Alemán", "tag": "idioma"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:30", "label": "Estudio", "tag": "estudio"}, {"ini": "18:30", "fin": "19:00", "label": "Oración de la tarde", "tag": "esp"}, {"ini": "19:00", "fin": "20:00", "label": "Libre", "tag": "libre"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "martes": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "09:30", "label": "Estudio", "tag": "estudio"}, {"ini": "09:30", "fin": "12:15", "label": "Clase Metafísica de Aristóteles — Prof. Hochschild (Angelicum)", "tag": "clase"}, {"ini": "12:15", "fin": "13:00", "label": "Estudio", "tag": "estudio"}, {"ini": "13:00", "fin": "13:30", "label": "Griego / Alemán", "tag": "idioma"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:30", "label": "Estudio", "tag": "estudio"}, {"ini": "18:30", "fin": "19:00", "label": "Oración de la tarde", "tag": "esp"}, {"ini": "19:00", "fin": "20:00", "label": "Libre", "tag": "libre"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "miercoles": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "10:30", "label": "Estudio", "tag": "estudio"}, {"ini": "10:30", "fin": "11:00", "label": "Descanso", "tag": "desc"}, {"ini": "11:00", "fin": "13:00", "label": "Estudio", "tag": "estudio"}, {"ini": "13:00", "fin": "13:30", "label": "Griego / Alemán", "tag": "idioma"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:45", "label": "Idiomas o Pintar", "tag": "idioma"}, {"ini": "18:45", "fin": "20:00", "label": "Dirección espiritual y Círculo", "tag": "esp"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "jueves": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "10:30", "label": "Formación", "tag": "formacion"}, {"ini": "10:30", "fin": "11:00", "label": "Descanso", "tag": "desc"}, {"ini": "11:00", "fin": "13:00", "label": "Formación", "tag": "formacion"}, {"ini": "13:00", "fin": "13:30", "label": "Griego / Alemán", "tag": "idioma"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:30", "label": "Estudio", "tag": "estudio"}, {"ini": "18:30", "fin": "19:00", "label": "Oración de la tarde", "tag": "esp"}, {"ini": "19:00", "fin": "20:00", "label": "Libre", "tag": "libre"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "viernes": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "10:30", "label": "Estudio", "tag": "estudio"}, {"ini": "10:30", "fin": "11:00", "label": "Descanso", "tag": "desc"}, {"ini": "11:00", "fin": "13:00", "label": "Estudio", "tag": "estudio"}, {"ini": "13:00", "fin": "13:30", "label": "Griego / Alemán", "tag": "idioma"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:30", "label": "Encargo de restauración", "tag": "encargo"}, {"ini": "18:30", "fin": "19:00", "label": "Oración de la tarde", "tag": "esp"}, {"ini": "19:00", "fin": "20:00", "label": "Libre", "tag": "libre"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "sabado": [{"ini": "07:45", "fin": "08:00", "label": "Lectura espiritual", "tag": "esp"}, {"ini": "08:00", "fin": "10:30", "label": "Formación", "tag": "formacion"}, {"ini": "10:30", "fin": "11:00", "label": "Descanso", "tag": "desc"}, {"ini": "11:00", "fin": "13:30", "label": "Formación", "tag": "formacion"}, {"ini": "13:30", "fin": "13:30", "label": "Almuerzo", "tag": "comida", "point": true}, {"ini": "15:15", "fin": "18:30", "label": "Formación o Pintar", "tag": "idioma"}, {"ini": "18:30", "fin": "19:00", "label": "Oración de la tarde", "tag": "esp"}, {"ini": "19:00", "fin": "20:00", "label": "Libre", "tag": "libre"}, {"ini": "20:00", "fin": "20:00", "label": "Cena", "tag": "comida", "point": true}], "domingo": [{"ini": "—", "fin": "—", "label": "Día de descanso — sin plan de estudio", "tag": "libre"}]};
+
+const DATA = [{"fecha": "2026-09-01", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-03", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-04", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-05", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-06", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-07", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-08", "fd": "Tertulia al mediodía en sala de lectura", "ponente": "", "contenido": ""}, {"fecha": "2026-09-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-10", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-11", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-12", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-13", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-14", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-17", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-18", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-19", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-20", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-21", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-22", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-24", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-25", "fd": "Tertulia al mediodía en sala de lectura", "ponente": "", "contenido": ""}, {"fecha": "2026-09-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-27", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-28", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-29", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-09-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-01", "fd": "Día de excursión Pisa", "ponente": "", "contenido": ""}, {"fecha": "2026-10-02", "fd": "Aniv. Fundación", "ponente": "", "contenido": ""}, {"fecha": "2026-10-03", "fd": "F.D.: Sala lectura a las 16.00", "ponente": "Javi", "contenido": "Explicación gral formación, exámenes, Juramento y Declaratio pro sacros ordines recepturis"}, {"fecha": "2026-10-04", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-05", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-06", "fd": "Aniv. Canonización", "ponente": "", "contenido": ""}, {"fecha": "2026-10-07", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-08", "fd": "F.D.: Aula A", "ponente": "Juan Rego / Javi B.", "contenido": "Clase sobre el Diaconado / Sesión práctica servicio Mesa y lectura"}, {"fecha": "2026-10-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-10", "fd": "F.D.: Med y Misa en NSA", "ponente": "Pau Agulles", "contenido": "Dirección espiritual 1"}, {"fecha": "2026-10-11", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-12", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-13", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-14", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-15", "fd": "F.D.: Aula A", "ponente": "Juan Rego / Javi B.", "contenido": "Clase sobre la Bendición / Sesión práctica por la tarde"}, {"fecha": "2026-10-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-17", "fd": "F.D.: Med y Misa en NSA", "ponente": "Juan Rego", "contenido": "Collatio 1 / Clase sobre Liturgia de las Horas y sesión práctica por la tarde"}, {"fecha": "2026-10-18", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-19", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-20", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-21", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-22", "fd": "F.D.: Aula A", "ponente": "Pau Agulles", "contenido": "Dirección espiritual 2"}, {"fecha": "2026-10-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-24", "fd": "F.D.: Med y Misa en NSA", "ponente": "Gerard Jiménez", "contenido": "Dirección espiritual 3"}, {"fecha": "2026-10-25", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-27", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-28", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-29", "fd": "F.D.: Aula A", "ponente": "Javi B.", "contenido": "Clase sobre ropa talar (leer aviso) / Sesión práctica sotana y alba"}, {"fecha": "2026-10-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-10-31", "fd": "F.D.: Med y Misa en NSA", "ponente": "Javi B.", "contenido": "Clase sobre predicación (meditación y homilía) / Sesión práctica"}, {"fecha": "2026-11-01", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-02", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-03", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-04", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-05", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-06", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-07", "fd": "crt ordenandos TA", "ponente": "", "contenido": ""}, {"fecha": "2026-11-08", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-10", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-11", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-12", "fd": "F.D.: Aula A", "ponente": "Carlos Villar", "contenido": "Dirección espiritual 4"}, {"fecha": "2026-11-13", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-14", "fd": "F.D.: Med y Misa en NSA", "ponente": "Javi B.", "contenido": "Collatio 2 y Repaso práctica alba / misa / bendición"}, {"fecha": "2026-11-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-17", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-18", "fd": "15.30: ensayo ordenación (NSA)", "ponente": "", "contenido": ""}, {"fecha": "2026-11-19", "fd": "9.30: ensayo S. Eugenio (salida 9.00)", "ponente": "", "contenido": ""}, {"fecha": "2026-11-20", "fd": "Clase y tertulia con el Padre", "ponente": "", "contenido": ""}, {"fecha": "2026-11-21", "fd": "Ord. Diaconal 10.30", "ponente": "", "contenido": ""}, {"fecha": "2026-11-22", "fd": "Primer servicio a las misas", "ponente": "", "contenido": ""}, {"fecha": "2026-11-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-24", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-25", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-26", "fd": "F.D.: Aula A", "ponente": "Juanpi Cannata", "contenido": "Collatio / El sacerdote y su dimensión pública (aop, redes, etc.)"}, {"fecha": "2026-11-27", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-28", "fd": "NO F.D.:  Aniv. Prelatura", "ponente": "", "contenido": ""}, {"fecha": "2026-11-29", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-11-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-01", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-03", "fd": "1ª cv d TA (sss+)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-04", "fd": "1ª cv d TA (sss+)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-05", "fd": "1ª cv d TA (sss+)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-06", "fd": "1ª cv d TA (sss+)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-07", "fd": "1ª cv d TA (sss+)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-08", "fd": "Inmaculada", "ponente": "", "contenido": ""}, {"fecha": "2026-12-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-10", "fd": "F.D.: Aula A", "ponente": "Carlos Villar", "contenido": "Dirección espiritual 5"}, {"fecha": "2026-12-11", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-12", "fd": "F.D.: Med y Misa en NSA", "ponente": "Javi B.", "contenido": "Collatio 3 / Dirección espiritual 6-afectividad"}, {"fecha": "2026-12-13", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-14", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-17", "fd": "F.D.: Aula A", "ponente": "Carlos Villar", "contenido": "Dirección espiritual 6"}, {"fecha": "2026-12-18", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-19", "fd": "F.D.: Med y Misa en NSA", "ponente": "Carlos Villar", "contenido": "Dirección espiritual 7"}, {"fecha": "2026-12-20", "fd": "rtm d (unidos con la casa)", "ponente": "", "contenido": ""}, {"fecha": "2026-12-21", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-22", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-24", "fd": "NO F.D.", "ponente": "", "contenido": ""}, {"fecha": "2026-12-25", "fd": "Navidad", "ponente": "", "contenido": ""}, {"fecha": "2026-12-26", "fd": "NO F.D.", "ponente": "", "contenido": ""}, {"fecha": "2026-12-27", "fd": "San Juan", "ponente": "", "contenido": ""}, {"fecha": "2026-12-28", "fd": "Sagrada Familia", "ponente": "", "contenido": ""}, {"fecha": "2026-12-29", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2026-12-31", "fd": "NO F.D.", "ponente": "", "contenido": ""}, {"fecha": "2027-01-01", "fd": "Madre de Dios", "ponente": "", "contenido": ""}, {"fecha": "2027-01-02", "fd": "NO F.D.", "ponente": "", "contenido": ""}, {"fecha": "2027-01-03", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-04", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-05", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-06", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-07", "fd": "F.D.: Aula A", "ponente": "Jordi Pujol", "contenido": "Abusos de conciencia"}, {"fecha": "2027-01-08", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-09", "fd": "NO F.D.: Nac. Nuestro Padre", "ponente": "", "contenido": ""}, {"fecha": "2027-01-10", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-11", "fd": "2ª Convivencia d TA (cg)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-12", "fd": "2ª Convivencia d TA (cg)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-13", "fd": "2ª Convivencia d TA (cg)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-14", "fd": "2ª Convivencia d TA (cg)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-16", "fd": "F.D.: Med y Misa en NSA", "ponente": "José María S.B.", "contenido": "Collatio / El sacerdote en la labor de sm"}, {"fecha": "2027-01-17", "fd": "rtm d", "ponente": "", "contenido": ""}, {"fecha": "2027-01-18", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-19", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-20", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-21", "fd": "F.D.: Aula A", "ponente": "Marcos Arroyo", "contenido": "Labor sf"}, {"fecha": "2027-01-22", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-23", "fd": "F.D.: Med y Misa en VT", "ponente": "D. Mariano", "contenido": "La labor del sacerdote en la obra"}, {"fecha": "2027-01-24", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-25", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-01-27", "fd": "3ª Convivencia d VdlR (Colegios)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-28", "fd": "3ª Convivencia d VdlR (Colegios)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-29", "fd": "3ª Convivencia d VdlR (Colegios)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-30", "fd": "3ª Convivencia d VdlR (Colegios)", "ponente": "", "contenido": ""}, {"fecha": "2027-01-31", "fd": "3ª Convivencia d VdlR (Colegios)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-01", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-03", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-04", "fd": "F.D.: Aula A", "ponente": "D. José Andrés", "contenido": "Labor sf"}, {"fecha": "2027-02-05", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-06", "fd": "F.D.: Med y Misa en NSA", "ponente": "D. José Andrés", "contenido": "Labor sf"}, {"fecha": "2027-02-07", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-08", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-10", "fd": "Miércoles de Ceniza", "ponente": "", "contenido": ""}, {"fecha": "2027-02-11", "fd": "F.D.: Aula A", "ponente": "D. José Andrés", "contenido": "Labor sf"}, {"fecha": "2027-02-12", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-13", "fd": "rtm d", "ponente": "", "contenido": ""}, {"fecha": "2027-02-14", "fd": "Fundación sf / sss+", "ponente": "", "contenido": ""}, {"fecha": "2027-02-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-17", "fd": "4ª Convivencia d TA (Retórica)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-18", "fd": "4ª Convivencia d TA (Retórica)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-19", "fd": "4ª Convivencia d TA (Retórica)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-20", "fd": "4ª Convivencia d TA (Retórica)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-21", "fd": "4ª Convivencia d TA (Retórica)", "ponente": "", "contenido": ""}, {"fecha": "2027-02-22", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-24", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-25", "fd": "F.D.: Aula A", "ponente": "Wences", "contenido": "Personalidad y sus trastornos 1"}, {"fecha": "2027-02-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-02-27", "fd": "F.D.: Med y Misa en NSA", "ponente": "Javi B.", "contenido": "Collatio / Prácticas Misa"}, {"fecha": "2027-02-28", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-01", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-03", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-04", "fd": "F.D.: Aula A", "ponente": "Wences", "contenido": "Personalidad y sus trastornos 2"}, {"fecha": "2027-03-05", "fd": "", "ponente": "Javier Vidal", "contenido": "Labor cónyuges"}, {"fecha": "2027-03-06", "fd": "F.D.: Med y Misa en NSA", "ponente": "Javier Vidal", "contenido": "Labor cónyuges"}, {"fecha": "2027-03-07", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-08", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-09", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-10", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-11", "fd": "F.D.: Aula A", "ponente": "Quico Insa", "contenido": "La dirección espiritual de personas con deficiencias en la educación afectiva"}, {"fecha": "2027-03-12", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-13", "fd": "F.D.: Med y Misa en NSA", "ponente": "Carlos Villar", "contenido": "Collatio / Dirección espiritual 6"}, {"fecha": "2027-03-14", "fd": "rtm d", "ponente": "", "contenido": ""}, {"fecha": "2027-03-15", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-17", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-18", "fd": "F.D.: Aula A", "ponente": "Arturo Belloch", "contenido": "La virtud de la justicia"}, {"fecha": "2027-03-19", "fd": "San José", "ponente": "", "contenido": ""}, {"fecha": "2027-03-20", "fd": "NO F.D.", "ponente": "", "contenido": ""}, {"fecha": "2027-03-21", "fd": "Domingo de Ramos", "ponente": "", "contenido": ""}, {"fecha": "2027-03-22", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-23", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-24", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-25", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-26", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-27", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-28", "fd": "Semana Santa", "ponente": "", "contenido": ""}, {"fecha": "2027-03-29", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-03-31", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-01", "fd": "F.D.: Aula A", "ponente": "Padre Francesco", "contenido": "Exorcismos"}, {"fecha": "2027-04-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-03", "fd": "F.D.: Med y Misa en NSA", "ponente": "Carlos Villar", "contenido": "La virtud de la castidad"}, {"fecha": "2027-04-04", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-05", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-06", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-07", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-08", "fd": "5ª Convivencia d TA (Liturgia)", "ponente": "", "contenido": ""}, {"fecha": "2027-04-09", "fd": "5ª Convivencia d TA (Liturgia)", "ponente": "", "contenido": ""}, {"fecha": "2027-04-10", "fd": "5ª Convivencia d TA (Liturgia)", "ponente": "", "contenido": ""}, {"fecha": "2027-04-11", "fd": "5ª Convivencia d TA (Liturgia)", "ponente": "", "contenido": ""}, {"fecha": "2027-04-12", "fd": "5ª Convivencia d TA (Liturgia)", "ponente": "", "contenido": ""}, {"fecha": "2027-04-13", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-14", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-15", "fd": "F.D.: Aula A", "ponente": "Marcelo Valenga", "contenido": "Labor sg"}, {"fecha": "2027-04-16", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-17", "fd": "F.D.: Med y Misa en NSA", "ponente": "Ángel G. Montoro", "contenido": "Collatio / Studium Generale"}, {"fecha": "2027-04-18", "fd": "rtm d", "ponente": "", "contenido": ""}, {"fecha": "2027-04-19", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-20", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-21", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-22", "fd": "F.D.: Aula A", "ponente": "Andrew Laird", "contenido": "Labor sr"}, {"fecha": "2027-04-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-24", "fd": "NO F.D.: Open Day", "ponente": "", "contenido": ""}, {"fecha": "2027-04-25", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-27", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-28", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-04-29", "fd": "F.D.: Aula A", "ponente": "Chema Laporte", "contenido": "Pastoral de enfermos"}, {"fecha": "2027-04-30", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-01", "fd": "NO F.D.: San José Obrero", "ponente": "", "contenido": ""}, {"fecha": "2027-05-02", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-03", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-04", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-05", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-06", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-07", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-08", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-09", "fd": "crt d previo al sacerdocio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-10", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-11", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-12", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-13", "fd": "F.D.: Aula A", "ponente": "", "contenido": ""}, {"fecha": "2027-05-14", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-15", "fd": "F.D.: Med y Misa en NSA", "ponente": "???????", "contenido": ""}, {"fecha": "2027-05-16", "fd": "Pentecostés", "ponente": "", "contenido": ""}, {"fecha": "2027-05-17", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-18", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-19", "fd": "Ensayo Aula A", "ponente": "", "contenido": ""}, {"fecha": "2027-05-20", "fd": "Ensayo S. Eugenio", "ponente": "", "contenido": ""}, {"fecha": "2027-05-21", "fd": "Clase con el Padre", "ponente": "", "contenido": ""}, {"fecha": "2027-05-22", "fd": "Ordenaciones", "ponente": "", "contenido": ""}, {"fecha": "2027-05-23", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-24", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-25", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-26", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-27", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-28", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-29", "fd": "", "ponente": "", "contenido": ""}, {"fecha": "2027-05-30", "fd": "", "ponente": "", "contenido": ""}];
+
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS = ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+const DIAS_ABR = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+
+// index by date string
+const byDate = {};
+DATA.forEach(d => byDate[d.fecha] = d);
+
+function parseDate(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function fmtDate(dt){
+  const y = dt.getFullYear(), m = String(dt.getMonth()+1).padStart(2,'0'), d = String(dt.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function todayStr(){
+  return fmtDate(new Date());
+}
+
+// theme
+const root = document.documentElement;
+let theme = null;
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  theme = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+  root.setAttribute('data-theme', theme);
+});
+
+// find initial month: current month if within range, else first month with data
+const allDates = DATA.map(d=>d.fecha).sort();
+const minDate = parseDate(allDates[0]);
+const maxDate = parseDate(allDates[allDates.length-1]);
+let now = new Date();
+let cursor = new Date(now.getFullYear(), now.getMonth(), 1);
+if (cursor < new Date(minDate.getFullYear(), minDate.getMonth(),1) || cursor > new Date(maxDate.getFullYear(), maxDate.getMonth(),1)) {
+  cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+}
+let selectedDate = null;
+
+function renderCalendar(){
+  const y = cursor.getFullYear(), m = cursor.getMonth();
+  document.getElementById('monthLabel').textContent = `${MESES[m]} ${y}`;
+
+  const firstDay = new Date(y, m, 1);
+  let startOffset = firstDay.getDay(); // 0=Sun
+  startOffset = (startOffset === 0) ? 6 : startOffset - 1; // convert to Mon-first
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  for(let i=0;i<startOffset;i++){
+    const cell = document.createElement('div');
+    cell.className = 'day-cell empty';
+    grid.appendChild(cell);
+  }
+
+  const tStr = todayStr();
+
+  for(let day=1; day<=daysInMonth; day++){
+    const dt = new Date(y,m,day);
+    const ds = fmtDate(dt);
+    const entry = byDate[ds];
+    const hasEvent = entry && (entry.fd || entry.ponente || entry.contenido);
+    const isSunday = dt.getDay() === 0;
+
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    if(hasEvent) cell.classList.add('has-event');
+    if(ds === tStr) cell.classList.add('today');
+    if(ds === selectedDate) cell.classList.add('selected');
+    if(isSunday) cell.classList.add('sunday');
+    cell.innerHTML = `<span class="num">${day}</span>` + (hasEvent ? '<span class="dot"></span>' : '');
+    cell.addEventListener('click', ()=>{ selectedDate = ds; renderCalendar(); renderDetail(ds); });
+    grid.appendChild(cell);
+  }
+
+  document.getElementById('prevMonth').disabled = (y===minDate.getFullYear() && m===minDate.getMonth());
+  document.getElementById('nextMonth').disabled = (y===maxDate.getFullYear() && m===maxDate.getMonth());
+}
+
+function renderDetail(ds){
+  const panel = document.getElementById('detailPanel');
+  if(!ds){
+    panel.innerHTML = `<div class="empty-msg">Toca un día para ver los detalles.</div>`;
+    return;
+  }
+  const dt = parseDate(ds);
+  const entry = byDate[ds];
+  const dowName = DIAS[(dt.getDay()+6)%7];
+  const label = `${dowName}, ${dt.getDate()} de ${MESES[dt.getMonth()]}`;
+
+  if(!entry || (!entry.fd && !entry.ponente && !entry.contenido)){
+    panel.innerHTML = `<div class="d-date serif">${label}</div><div class="empty-msg">Sin actividades registradas.</div>`;
+    return;
+  }
+
+  let html = `<div class="d-date serif">${label}</div>`;
+  if(entry.fd){
+    const isFD = entry.fd.startsWith('F.D.');
+    html += `<div class="fd-line">${isFD ? '<span class="tag">F.D.</span>' : ''}<span>${escapeHtml(entry.fd)}</span></div>`;
+  }
+  if(entry.ponente){
+    html += `<div class="ponente">Ponente: <b>${escapeHtml(entry.ponente)}</b></div>`;
+  }
+  if(entry.contenido){
+    html += `<div class="contenido">${escapeHtml(entry.contenido)}</div>`;
+  }
+  panel.innerHTML = html;
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.getElementById('prevMonth').addEventListener('click', ()=>{
+  cursor = new Date(cursor.getFullYear(), cursor.getMonth()-1, 1);
+  renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', ()=>{
+  cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+  renderCalendar();
+});
+document.getElementById('todayBtn').addEventListener('click', ()=>{
+  const t = new Date();
+  let target = new Date(t.getFullYear(), t.getMonth(), 1);
+  if (target < new Date(minDate.getFullYear(), minDate.getMonth(),1) || target > new Date(maxDate.getFullYear(), maxDate.getMonth(),1)) {
+    target = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  }
+  cursor = target;
+  selectedDate = todayStr();
+  renderCalendar();
+  renderDetail(byDate[selectedDate] ? selectedDate : null);
+});
+
+// search
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const calendarBlock = document.getElementById('calendarBlock');
+
+searchInput.addEventListener('input', ()=>{
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q){
+    searchResults.style.display = 'none';
+    calendarBlock.style.display = '';
+    return;
+  }
+  calendarBlock.style.display = 'none';
+  searchResults.style.display = '';
+
+  const matches = DATA.filter(d=>{
+    if(!(d.fd || d.ponente || d.contenido)) return false;
+    const blob = `${d.fd} ${d.ponente} ${d.contenido}`.toLowerCase();
+    return blob.includes(q);
+  });
+
+  if(matches.length === 0){
+    searchResults.innerHTML = `<div class="no-results">Sin resultados para "${escapeHtml(searchInput.value)}"</div>`;
+    return;
+  }
+
+  searchResults.innerHTML = '<div class="agenda-list"></div>';
+  const list = searchResults.querySelector('.agenda-list');
+  matches.forEach(d => list.appendChild(buildAgendaItem(d)));
+});
+
+function buildAgendaItem(d){
+  const dt = parseDate(d.fecha);
+  const item = document.createElement('div');
+  item.className = 'agenda-item';
+  item.innerHTML = `
+    <div class="date-block">
+      <div class="dow">${DIAS_ABR[(dt.getDay()+6)%7]}</div>
+      <div class="dnum serif">${dt.getDate()}</div>
+      <div class="mon">${MESES[dt.getMonth()].slice(0,3)}</div>
+    </div>
+    <div class="content">
+      ${d.fd ? `<div class="fd">${escapeHtml(d.fd)}</div>` : ''}
+      ${d.ponente ? `<div class="pon">${escapeHtml(d.ponente)}</div>` : ''}
+      ${d.contenido ? `<div class="cont">${escapeHtml(d.contenido)}</div>` : ''}
+    </div>
+  `;
+  item.addEventListener('click', ()=>{
+    switchTab('calendario');
+    searchInput.value = '';
+    searchResults.style.display = 'none';
+    calendarBlock.style.display = '';
+    cursor = new Date(dt.getFullYear(), dt.getMonth(), 1);
+    selectedDate = d.fecha;
+    renderCalendar();
+    renderDetail(d.fecha);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  return item;
+}
+
+// agenda tab (upcoming FD dates)
+function renderAgenda(){
+  const list = document.getElementById('agendaList');
+  list.innerHTML = '';
+  const t = todayStr();
+  let upcoming = DATA.filter(d => d.fecha >= t && (d.fd || d.ponente || d.contenido));
+  if(upcoming.length === 0){
+    // if past the whole range, just show all
+    upcoming = DATA.filter(d => (d.fd || d.ponente || d.contenido));
+  }
+  if(upcoming.length === 0){
+    list.innerHTML = `<div class="no-results">No hay fechas registradas.</div>`;
+    return;
+  }
+  upcoming.forEach(d => list.appendChild(buildAgendaItem(d)));
+}
+
+// horarios tab
+const HORARIOS = {
+  jueves: [
+    {time:'13:30', what:'* (marcado en la hoja original — ver nota)'},
+    {time:'15:15', what:'Estudio'},
+    {time:'16:30', what:'Meditación por grupos'},
+    {time:'—', what:'Merienda'},
+    {time:'18:00', what:'Clase 1'},
+    {time:'19:00', what:'Clase 2 *'},
+  ],
+  sabado: [
+    {time:'07:30', what:'Meditación y Misa NSA'},
+    {time:'08:45', what:'Desayuno'},
+    {time:'09:30', what:'Estudio – Collatio'},
+    {time:'11:15', what:'Clase 1'},
+    {time:'12:15', what:'Clase 2'},
+    {time:'13:10', what:'(Bendición Grupo I)'},
+    {time:'13:30', what:'Almuerzo, Tertulia (Sala Lectura) y Sto. Rosario'},
+    {time:'15:45', what:'Canto litúrgico / sesión / estudio'},
+    {time:'16:30', what:'Meditación por grupos'},
+    {time:'17:15', what:'Estudio'},
+    {time:'19:40', what:'Bendición resto de Grupos *'},
+  ]
+};
+function renderHorarios(){
+  const j = document.getElementById('juevesRows');
+  const s = document.getElementById('sabadoRows');
+  j.innerHTML = HORARIOS.jueves.map(r=>`<div class="horario-row"><div class="time">${r.time}</div><div class="what">${r.what}</div></div>`).join('');
+  s.innerHTML = HORARIOS.sabado.map(r=>`<div class="horario-row"><div class="time">${r.time}</div><div class="what">${r.what}</div></div>`).join('');
+}
+
+// ---- Mi semana ----
+const DIAS_KEY = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
+const DIAS_LARGO = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+const DIAS_CORTO = ["L","M","X","J","V","S","D"];
+
+function jsDowToKey(jsDay){
+  // jsDay: 0=Sun..6=Sat -> index into DIAS_KEY (0=Mon..6=Sun)
+  return (jsDay + 6) % 7;
+}
+
+let semanaSelected = jsDowToKey(new Date().getDay());
+
+function timeToMinutes(t){
+  if(t === '—') return null;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+
+function nowMinutes(){
+  const n = new Date();
+  return n.getHours()*60 + n.getMinutes();
+}
+
+function renderTodayBanner(){
+  const banner = document.getElementById('todayBanner');
+  const n = new Date();
+  const dowIdx = jsDowToKey(n.getDay());
+  const dayName = DIAS_LARGO[dowIdx];
+  const dstr = `${n.getDate()} de ${MESES[n.getMonth()]}`;
+  banner.innerHTML = `<div class="dow serif">${dayName}</div><div class="dfull">${dstr}</div>`;
+}
+
+function renderWeekStrip(){
+  const strip = document.getElementById('weekStrip');
+  strip.innerHTML = '';
+  const todayIdx = jsDowToKey(new Date().getDay());
+  DIAS_KEY.forEach((key, idx)=>{
+    const btn = document.createElement('div');
+    btn.className = 'week-day-btn';
+    if(idx === todayIdx) btn.classList.add('is-today');
+    if(idx === semanaSelected) btn.classList.add('selected');
+    btn.innerHTML = `<span class="wl">${DIAS_CORTO[idx]}</span><span class="wdot"></span>`;
+    btn.addEventListener('click', ()=>{
+      semanaSelected = idx;
+      renderWeekStrip();
+      renderDaySchedule();
+    });
+    strip.appendChild(btn);
+  });
+}
+
+function renderDaySchedule(){
+  const cont = document.getElementById('daySchedule');
+  cont.innerHTML = '';
+  const key = DIAS_KEY[semanaSelected];
+  const blocks = SEMANA[key];
+  const isToday = semanaSelected === jsDowToKey(new Date().getDay());
+  const nm = isToday ? nowMinutes() : null;
+
+  if(key === 'domingo'){
+    cont.innerHTML = `<div class="rest-day">${blocks[0].label}</div>`;
+    return;
+  }
+
+  blocks.forEach(b=>{
+    if(b.point){
+      const div = document.createElement('div');
+      div.className = 'point-block';
+      div.innerHTML = `<span class="times">${b.ini}</span><span class="pline"></span><span>${b.label}</span>`;
+      cont.appendChild(div);
+      return;
+    }
+    const iniM = timeToMinutes(b.ini), finM = timeToMinutes(b.fin);
+    const isNow = isToday && nm!==null && iniM!==null && nm >= iniM && nm < finM;
+    const div = document.createElement('div');
+    div.className = `sched-block tag-${b.tag}` + (isNow ? ' now' : '');
+    div.innerHTML = `
+      <div class="times"><div class="t-start">${b.ini}</div><div class="t-end">${b.fin}</div></div>
+      <div class="bar"></div>
+      <div class="binfo">
+        <div class="blabel">${escapeHtml(b.label)}</div>
+      </div>
+    `;
+    cont.appendChild(div);
+  });
+}
+
+function refreshSemanaView(){
+  renderTodayBanner();
+  // auto-follow today unless the user has manually picked another day in this session
+  renderWeekStrip();
+  renderDaySchedule();
+}
+
+// keep "ahora" marker fresh
+setInterval(()=>{
+  if(document.getElementById('view-semana').style.display !== 'none'){
+    renderDaySchedule();
+  }
+}, 60000);
+
+// at midnight rollover, reset selection to new today (checked every minute above is enough granularity for demo)
+let lastDateStr = todayStr();
+setInterval(()=>{
+  const t = todayStr();
+  if(t !== lastDateStr){
+    lastDateStr = t;
+    semanaSelected = jsDowToKey(new Date().getDay());
+    refreshSemanaView();
+  }
+}, 60000);
+
+// ---- Semana completa (grilla) ----
+const TAG_LABELS = {
+  estudio:'Estudio', clase:'Clase', formacion:'Formación', idioma:'Idiomas / Pintar',
+  encargo:'Encargo', esp:'Vida espiritual', desc:'Descanso', libre:'Libre'
+};
+const GRID_START = 7*60+45;  // 07:45
+const GRID_END   = 20*60;    // 20:00
+const PX_PER_MIN = 1.7;
+
+function buildLegend(){
+  const el = document.getElementById('gridLegend');
+  const tags = ['estudio','clase','formacion','idioma','encargo','esp'];
+  el.innerHTML = tags.map(t=>`<span class="lg-item"><span class="lg-dot tagbg-${t}"></span>${TAG_LABELS[t]}</span>`).join('');
+}
+
+function buildWeekGrid(){
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+  const totalMin = GRID_END - GRID_START;
+  const gridHeight = totalMin * PX_PER_MIN;
+  const todayIdx = jsDowToKey(new Date().getDay());
+
+  // corner
+  const corner = document.createElement('div');
+  corner.className = 'wg-corner';
+  grid.appendChild(corner);
+
+  // day headers
+  DIAS_KEY.forEach((key, idx)=>{
+    const h = document.createElement('div');
+    h.className = 'wg-daycol-head' + (idx===todayIdx ? ' is-today' : '');
+    h.textContent = DIAS_CORTO[idx];
+    grid.appendChild(h);
+  });
+
+  // hour label column (spans full height, one cell per hour mark) + day cells (one tall cell per day holding absolutely-positioned blocks)
+  // We build: for each hour from 7 to 20, a label row-cell in col1, height proportional.
+  // Simpler: create col1 as a single tall cell with hour labels positioned absolutely, and 7 tall day cells with blocks positioned absolutely.
+
+  const hourCol = document.createElement('div');
+  hourCol.className = 'wg-hour-label';
+  hourCol.style.height = gridHeight + 'px';
+  hourCol.style.position = 'relative';
+  hourCol.innerHTML = '';
+  for(let h=8; h<=20; h++){
+    const mins = h*60;
+    if(mins < GRID_START || mins > GRID_END) continue;
+    const top = (mins - GRID_START) * PX_PER_MIN;
+    const lab = document.createElement('div');
+    lab.style.position='absolute';
+    lab.style.top = (top-6) + 'px';
+    lab.style.right = '4px';
+    lab.style.fontSize = '0.6rem';
+    lab.textContent = h + ':00';
+    hourCol.appendChild(lab);
+  }
+  grid.appendChild(hourCol);
+
+  DIAS_KEY.forEach((key, idx)=>{
+    const cell = document.createElement('div');
+    cell.className = 'wg-daycell';
+    cell.style.height = gridHeight + 'px';
+    cell.style.position = 'relative';
+
+    if(key === 'domingo'){
+      const note = document.createElement('div');
+      note.style.cssText = 'position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);text-align:center;font-size:0.62rem;color:var(--ink-soft);font-style:italic;padding:0 4px;';
+      note.textContent = 'Descanso';
+      cell.appendChild(note);
+      grid.appendChild(cell);
+      return;
+    }
+
+    SEMANA[key].forEach(b=>{
+      if(b.point) return; // skip meal points in grid view
+      const iniM = timeToMinutes(b.ini), finM = timeToMinutes(b.fin);
+      if(iniM===null || finM===null) return;
+      const top = Math.max(0,(iniM - GRID_START)) * PX_PER_MIN;
+      const height = Math.max(14, (finM - iniM) * PX_PER_MIN - 2);
+      const block = document.createElement('div');
+      block.className = `wg-block tagbg-${b.tag}`;
+      block.style.top = top + 'px';
+      block.style.height = height + 'px';
+      const shortLabel = b.label.length > 22 ? b.label.split(' — ')[0] : b.label;
+      block.innerHTML = `${escapeHtml(shortLabel)}`;
+      if(height > 28){
+        block.innerHTML += `<span class="wgt">${b.ini}–${b.fin}</span>`;
+      }
+      cell.appendChild(block);
+    });
+
+    grid.appendChild(cell);
+  });
+}
+
+// tabs
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.getElementById('view-semana').style.display = name==='semana' ? '' : 'none';
+  document.getElementById('view-grid').style.display = name==='grid' ? '' : 'none';
+  document.getElementById('view-calendario').style.display = name==='calendario' ? '' : 'none';
+  document.getElementById('view-agenda').style.display = name==='agenda' ? '' : 'none';
+  document.getElementById('view-horarios').style.display = name==='horarios' ? '' : 'none';
+}
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>switchTab(t.dataset.tab));
+});
+
+// init
+renderCalendar();
+renderDetail(null);
+renderAgenda();
+renderHorarios();
+refreshSemanaView();
+buildLegend();
+buildWeekGrid();
+
+// try to select today if it has data, else leave empty
+if(byDate[todayStr()]){
+  selectedDate = todayStr();
+  renderCalendar();
+  renderDetail(selectedDate);
+}
+</script>
+</body>
+</html>
